@@ -69,20 +69,49 @@ export default function App() {
     setSpinnerOn(true);
     axiosWithAuth().post("/articles", article)
       .then(res => {
-        console.log(res)
+        setArticles([
+          ...articles,
+          res.data.article
+        ]);
+        setMessage(res.data.message);
         setSpinnerOn(false);
       })
       .catch(err => console.log(err))
 
   }
 
-  const updateArticle = ({ article_id, article }) => {
-    // ✨ implement
-    // You got this!
+  const updateArticle = (id, article) => {
+    
+    setMessage("")
+    setSpinnerOn(true)
+    axiosWithAuth().put(`/articles/${id}`, article)
+    .then(res => {
+      setMessage(res.data.message)
+      const newArticles = articles.map(each => {
+        if(each.article_id === id){
+          return res.data.article;
+        } else {
+          return each;
+        }
+      })
+      setArticles(newArticles);
+      setSpinnerOn(false);
+    })
+    .catch(err => console.log(err))
+    
+
   }
 
-  const deleteArticle = article_id => {
-    // ✨ implement
+  const deleteArticle = id => {
+    setMessage("")
+    setSpinnerOn(true)
+    axiosWithAuth().delete(`/articles/${id}`)
+      .then(res => {
+        setMessage(res.data.message)
+        setSpinnerOn(false)
+        setArticles(articles.filter(each => each.article_id !== id))
+      })
+      .catch(err => console.log({err}))
   }
 
   return (
@@ -101,8 +130,19 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
-              <ArticleForm currentArticleId={currentArticleId}/>
-              <Articles articles={articles} getArticles={getArticles}/>
+              <ArticleForm
+                articles={articles}
+                currentArticleId={currentArticleId}
+                setCurrentArticleId={setCurrentArticleId}
+                postArticle={postArticle}
+                updateArticle={updateArticle}
+              />
+              <Articles
+                articles={articles}
+                getArticles={getArticles}
+                setCurrentArticleId={setCurrentArticleId}
+                deleteArticle={deleteArticle}
+              />
             </>
           } />
         </Routes>
