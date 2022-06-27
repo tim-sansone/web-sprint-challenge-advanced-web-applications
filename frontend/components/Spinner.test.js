@@ -3,6 +3,7 @@
 import React from "react"
 import Spinner from "./Spinner"
 import { render, screen } from "@testing-library/react"
+import "@testing-library/jest-dom"
 
 
 test('sanity', () => {
@@ -16,9 +17,16 @@ test("renders component without errors", () => {
 test("renders correctly depending on props", () => {
   const { rerender } = render(<Spinner on={true}/>)
 
-  const spinner = screen.queryByText(/please wait.../i)
+  let spinner = screen.queryByText(/please wait.../i)
 
   expect(spinner).not.toBeNull();
-  expect(spinner).toBeVisible();
+  expect(spinner).toBeInTheDocument();
+
+  rerender(<Spinner on={false}/>)
+
+  spinner = screen.queryByText(/please wait.../i)
+
+  expect(spinner).toBeNull();
+  expect(spinner).not.toBeInTheDocument();
   
 })
